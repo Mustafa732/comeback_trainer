@@ -1,0 +1,25 @@
+workflows:
+  ios-workflow:
+    name: iOS IPA Build
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install dependencies
+        script: |
+          flutter clean
+          flutter pub get
+          cd ios && pod install --repo-update && cd ..
+      - name: Build IPA for testing
+        script: |
+          flutter build ios --release --no-codesign
+          cd build/ios/iphoneos
+          mkdir Payload
+          cp -r Runner.app Payload/
+          zip -r -y comeback_trainer.ipa Payload
+          mv comeback_trainer.ipa ../../../
+    artifacts:
+      - comeback_trainer.ipa
